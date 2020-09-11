@@ -1,6 +1,6 @@
 import pygame
 
-from game_button import Button
+from game_button import Simple_button
 from settings import BLUE
 
 
@@ -12,7 +12,7 @@ class Options:
         self.run = True
         self.menu_bg = pygame.image.load('img/options.png')
 
-        self.back_btn = Button(BLUE, 300, 50, 300, 70, 'Назад')
+        self.back_btn = Simple_button(BLUE, 300, 50, 300, 70, 'Назад')
 
     def show_menu(self):
         while self.run:

@@ -1,11 +1,14 @@
 import socket
 from threading import Thread
 
+import settings
+
 
 class Client:
 
     def __init__(self):
-        HOST = socket.gethostbyname(socket.gethostname())
+        #HOST = socket.gethostbyname(socket.gethostname())
+        HOST = settings.server_ip
         self.sock = socket.socket()
         self.sock.connect((HOST, 1080))
         self.data = ''
