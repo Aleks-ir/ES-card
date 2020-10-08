@@ -76,48 +76,57 @@ import socket
 import threading
 import queue
 import platform
-# Определяем константу содержащую имя ОС
-# для учёта особенностей данной операционной системы
-from gibbet_client import Client
 import socket
 class Server:
 
 
 
-    def send(self, first_mess, second_mess):
-        self.first_player.send(bytes(first_mess, "utf-8"))
-        self.second_player.send(bytes(second_mess, "utf-8"))
+    def send_result(self, result, sender):
+        for s in set(self.connections):
+            if s != sender:
+                s.send(bytes(result, "utf-8"))
 
     def count_result(self, first_message, second_message):
         if first_message == second_message:
-            self.send('DRAW', 'DRAW')
+            self.send_result('DRAW' + '_' + first_message, self.first_sender)
+            self.send_result('DRAW' + '_' + second_message, self.second_sender)
         elif first_message == 'EMPEROR' and second_message == 'SLAVE':
-            self.send("DEFEAT", "WIN")
+            self.send_result('WIN' + '_' + first_message, self.first_sender)
+            self.send_result('DEFEAT' + '_' + second_message, self.second_sender)
         elif first_message == 'SLAVE' and second_message == 'EMPEROR':
-            self.send("WIN", "DEFEAT")
-        elif first_message == 'SITIZER' and second_message == 'SLAVE' or first_message == 'EMPEROR' and second_message == 'SITIZER':
-            self.send("WIN", "DEFEAT")
-        elif first_message == 'SLAVE' and second_message == 'SITIZER' or first_message == 'SITIZER' and second_message == 'EMPEROR':
-            self.send("DEFEAT", "WIN")
+            self.send_result('DEFEAT' + '_' + first_message, self.first_sender)
+            self.send_result('WIN' + '_' + second_message, self.second_sender)
+        elif first_message == 'CITIZER' and second_message == 'SLAVE' or first_message == 'EMPEROR' and second_message == 'CITIZER':
+            self.send_result('DEFEAT' + '_' + first_message, self.first_sender)
+            self.send_result('WIN' + '_' + second_message, self.second_sender)
+        elif first_message == 'SLAVE' and second_message == 'CITIZER' or first_message == 'CITIZER' and second_message == 'EMPEROR':
+            self.send_result('WIN' + '_' + first_message, self.first_sender)
+            self.send_result('DEFEAT' + '_' + second_message, self.second_sender)
+        self.del_data()
 
-    def save_data(self, data):
-        if self.is_first_message:
-            self.first_player, self.first_message = data
-            self.is_first_message = False
-        else:
-            self.second_player, self.second_message = data
-            self.is_first_message = True
-            self.count_result(self.first_message, self.second_message)
+    def del_data(self):
+        self.first_sender = None
+        self.second_sender = None
+        self.array_messages.clear()
+
+    def save_data(self, sender, message):
+        self.array_messages.append(message)
+        if len(self.array_messages) == 1:
+            self.first_sender = sender
+            self.send_result("WAIT", sender)
+        elif len(self.array_messages) == 2:
+            self.second_sender = sender
+            self.count_result(self.array_messages[0], self.array_messages[1])
 
     def sender(self, server, q):
         while self.run:
             try:
-                data = q.get(timeout=1)
-                self.save_data(data)
+                sender, message = q.get(timeout=1)
+                if sender != self.first_sender:
+                    self.save_data(sender, message)
             except queue.Empty:
                 pass
         self.shutdown_socket(server)
-
 
     def shutdown_socket(self, s):
         if self.OS_NAME == 'Linux':
@@ -136,14 +145,23 @@ class Server:
         client.close()
 
     def send_settings(self, client):
-        message = "connected" + '_' + settings.type_game + '_' + str(settings.count_round)
+        if len(self.connections) == 1:
+            type_game = settings.type_game
+        else:
+            type_game = 'Emperor' if settings.type_game == 'Slave' else 'Slave'
+        message = "connected" + '_' + type_game + '_' + str(settings.count_round) + '_' + settings.mode_game
         client.send(bytes(message, "utf-8"))
+
+    def send_start_info(self, connections):
+        for s in set(connections):
+            s.send(bytes("START", "utf-8"))
 
     def connect(self, client, connections, q):
         with threading.Lock():
             connections.append(client)
         threading.Thread(target=self.reciver, args=(client, q)).start()
         print('Подключено: ', len(connections))
+
 
     def accepter(self, server, connections, q):
         while self.run:
@@ -153,11 +171,14 @@ class Server:
                 if (self.OS_NAME == 'Windows' and e.errno != 10038) or (self.OS_NAME == 'Linux' and e.errno != 22):
                     raise
             else:
-                if len(connections) != 2:
+                if len(connections) < 2:
                     self.connect(client, connections, q)
                     self.send_settings(client)
+                    if len(connections) == 2:
+                        self.send_start_info(connections)
                 else:
-                    client.send(bytes("no", "utf-8"))
+                    client.send(bytes("no_connected", "utf-8"))
+
 
 
 
@@ -168,12 +189,13 @@ class Server:
         HOST = socket.gethostbyname(socket.gethostname())
         PORT = 1080
 
+        self.first_sender = None
+        self.second_sender = None
         self.run = True
-        self.is_first_message = True
         print('Запуск...')
         q = queue.Queue()
         self.connections = []
-
+        self.array_messages = []
         server = socket.socket()
         server.bind((HOST, PORT))
         server.listen(2)
