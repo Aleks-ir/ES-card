@@ -32,7 +32,7 @@ main_menu = "Главное меню"
 info_connection = "IP комнаты: "
 info_disconnection = "Ваш соперник отключился"
 victory = "Поздравляю. Вы победили :)"
-defeat = "Очень жаль, но вы проиграли :("
+defeat = "Очень жаль, вы проиграли :("
 
 array_dialogue_strings = (continue_game, main_menu, info_connection, info_disconnection, victory, defeat)
 

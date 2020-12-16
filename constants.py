@@ -8,6 +8,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
+
 OPPNENTS_CARDS_PLACE = ((200, 75), (300, 75), (400, 75), (500, 75), (600, 75))
 ES_PLACE = (400, 525)
 CITIZERS_PLACE = ((200, 525), (300, 525), (500, 525), (600, 525))
@@ -15,6 +16,7 @@ START_PLACE = ((200, 525), (300, 525), (500, 525), (600, 525), (400, 525))
 MY_CP = (400, 360)
 OPP_CP = (400, 240)
 
+ICON_IMG = 'img/exe_icon.png'
 MENU_BG_IMG = 'img/menu_bg.png'
 MENU_IMG = 'img/menu.png'
 EMPEROR_IMG = 'img/emperor.png'
@@ -73,11 +75,11 @@ BTN_LEFT_IMG = 'img/btn_left.png'
 DIALOGUE_WINDOW_IMG = 'img/dialogue_window.png'
 TEXT_IMG = 'img/text.png'
 
-DEFEAT_SOUND = 'music/defeat.wav'
-VICTORY_SOUND = 'music/victory.wav'
-SOUND_1 = 'music/sound_1.wav'
-SOUND_2 = 'music/sound_2.wav'
-SOUND_MENU = 'music/sound_menu.wav'
+DEFEAT_SOUND = 'music/defeat.mp3'
+VICTORY_SOUND = 'music/victory.mp3'
+SOUND_1 = 'music/sound_1.mp3'
+SOUND_2 = 'music/sound_2.mp3'
+SOUND_MENU = 'music/sound_menu.mp3'
 SOUND_CLICK = 'music/sound_click.wav'
 
 CAPTION = "ES-card"
@@ -97,6 +99,8 @@ CONNECTED = "connected"
 NO_CONNECTED = "no_connected"
 NORMAL = "normal"
 
-GABRIOLA = 'gabriola'
-TITLE_FONT = "mistral"
-MONOTYPECORSIVA = 'monotypecorsiva'
+GABRIOLA = 'fonts/gabriola.ttf'
+TITLE_FONT = "fonts/vremyaboldItalic.ttf"
+MONOTYPECORSIVA = 'fonts/monotypecorsiva.ttf'
+ALGERIAN = "fonts/algerian.ttf"
+ARIAL = "arial"

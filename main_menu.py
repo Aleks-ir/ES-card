@@ -30,7 +30,7 @@ class Menu:
         self.is_exit = False
         self.is_draw_buttons = False
         self.guidance_number = 0
-        self.myfont = pygame.font.SysFont(constants.MONOTYPECORSIVA, 25)
+        self.myfont = pygame.font.Font(constants.MONOTYPECORSIVA, 25)
         self.is_draw_info_text = False
         self.guidance_button = Image_button(False, constants.POINT_IMG, 0, 0)
         self.menu_bg = pygame.image.load(constants.MENU_BG_IMG)
@@ -56,8 +56,9 @@ class Menu:
         settings.count_round = 10
 
     def init_sound(self):
-        self.sound_menu = pygame.mixer.Sound(constants.SOUND_MENU).play(-1)
-        self.sound_menu.set_volume(0.1)
+        pygame.init()
+        pygame.mixer.init()
+        pygame.mixer.music.load(constants.SOUND_MENU)
         self.sound_click = pygame.mixer.Sound(constants.SOUND_CLICK)
         self.sound_click.set_volume(1)
 
@@ -92,14 +93,14 @@ class Menu:
         self.square = Image_button(False, constants.SQUARE_IMG, 370, 170, str(settings.count_round), 20, constants.BLACK, constants.GABRIOLA)
 
         self.center_btn = Image_button(False, constants.BTN_CENTER_ON_IMG if settings.is_multiplayer else constants.BTN_CENTER_OFF_IMG, 350, 280, "", 20)
-        self.title_server = Image_button(False, constants.PAPER_TITLE_IMG, 275, 10, strings_ru.server, 35, constants.BLACK, constants.TITLE_FONT)
+        self.title_server = Image_button(False, constants.PAPER_TITLE_IMG, 275, 10, strings_ru.server, 25, constants.BLACK, constants.TITLE_FONT)
 
         self.server_menu_buttons = (self.title_server, self.accept_btn, self.back_btn, self.center_btn,
                                     self.heading_play_as, self.left_btn_one, self.left_btn_two, self.point_left,
                                     self.heading_mode, self.right_btn_one, self.right_btn_two, self.point_right,
                                     self.heading_count_rounds, self.square, self.next_btn, self.prev_btn)
 
-        self.title_client = Image_button(False, constants.PAPER_TITLE_IMG, 275, 10, strings_ru.client, 35, constants.BLACK, constants.TITLE_FONT)
+        self.title_client = Image_button(False, constants.PAPER_TITLE_IMG, 275, 10, strings_ru.client, 25, constants.BLACK, constants.TITLE_FONT)
         self.heading_ip = Image_button(False, constants.HEADING_BIG_LEFT_IMG, 100, 150, strings_ru.info_ip, 20, constants.BLACK, constants.MONOTYPECORSIVA)
         self.field_ip = Image_button(False, constants.FIELD_IP_LEFT_IMG, 130, 220, "", 25, constants.BLACK, constants.TITLE_FONT)
         self.heading_last_ip = Image_button(False, constants.HEADING_BIG_RIGTH_IMG, 410, 150, strings_ru.info_last_ip, 20, constants.BLACK, constants.MONOTYPECORSIVA)
@@ -108,7 +109,7 @@ class Menu:
         self.title_client, self.accept_btn, self.back_btn, self.heading_ip, self.field_ip, self.heading_last_ip,
         self.last_ip_btn)
 
-        self.title_options = Image_button(False, constants.PAPER_TITLE_IMG, 275, 10, strings_ru.options, 35, constants.BLACK, constants.TITLE_FONT)
+        self.title_options = Image_button(False, constants.PAPER_TITLE_IMG, 275, 10, strings_ru.options, 25, constants.BLACK, constants.TITLE_FONT)
         self.prev_btn_background_view = Image_button(False, constants.BTN_PREV_OFF_IMG, 290, 260)
         self.background_view = Image_button(False, self.bg_img, 330, 230)
         self.next_btn_background_view = Image_button(False, constants.BTN_NEXT_OFF_IMG, 480, 260)
@@ -127,7 +128,7 @@ class Menu:
                                      self.prev_btn_background_view, self.background_view, self.next_btn_background_view,
                                      self.prev_btn_cp_view, self.cp_view, self.next_btn_cp_view)
 
-        self.title_info = Image_button(False, constants.PAPER_TITLE_IMG, 250, 10, strings_ru.about_game, 35, constants.BLACK, constants.TITLE_FONT)
+        self.title_info = Image_button(False, constants.PAPER_TITLE_IMG, 250, 10, strings_ru.about_game, 25, constants.BLACK, constants.TITLE_FONT)
         self.about_cards_btn = Image_button(False, constants.PAPER_INFO_OFF_IMG, 100, 20, strings_ru.about_cards, 25, constants.BLACK, constants.GABRIOLA)
         self.rules_game_btn = Image_button(False, constants.PAPER_INFO_ON_IMG, 300, 20, strings_ru.rules_game, 25, constants.BLACK, constants.GABRIOLA)
         self.control_btn = Image_button(False, constants.PAPER_INFO_OFF_IMG, 500, 20, strings_ru.control, 25, constants.BLACK, constants.GABRIOLA)
@@ -181,11 +182,9 @@ class Menu:
         self.type_menu = settings.type_menu
         self.set_language(settings.language)
         if settings.is_music:
-            self.turn_volume(self.sound_menu, 0.1)
-            self.turn_volume(self.sound_click, 1)
+            self.music_start(-1)
         else:
-            self.turn_volume(self.sound_menu, 0)
-            self.turn_volume(self.sound_click, 0)
+            self.music_stop()
 
     def determine_group(self, type_menu):
         if type_menu == 1:
@@ -269,12 +268,12 @@ class Menu:
             elif self.btn_music.isOver(pos):
                 if settings.is_music:
                     settings.is_music = False
-                    self.turn_volume(self.sound_menu, 0)
-                    self.turn_volume(self.sound_click, 0)
+                    self.sound_click.set_volume(0)
+                    self.music_stop()
                 else:
                     settings.is_music = True
-                    self.turn_volume(self.sound_menu, 0.1)
-                    self.turn_volume(self.sound_click, 1)
+                    self.sound_click.set_volume(1)
+                    self.music_start(-1)
 
         elif event.type == pygame.MOUSEMOTION:
             self.guidance(self.main_menu_buttons, pos)
@@ -351,7 +350,6 @@ class Menu:
         settings.is_server = True
         settings.type_menu = self.type_menu
         self.is_start_game = True
-        self.sound_menu.stop()
         self.is_animation_up = True
 
     def cancel_server(self):
@@ -415,7 +413,6 @@ class Menu:
         settings.is_server = False
         settings.type_menu = self.type_menu
         self.is_start_game = True
-        self.sound_menu.stop()
         self.is_animation_up = True
 
     def cancel_client(self):
@@ -652,9 +649,10 @@ class Menu:
         self.rules_game_text = strings.array_rules_game
         self.control_text = strings.array_control
 
-    def turn_volume(self, sound, volume):
-        sound.set_volume(volume)
-        if volume != 0:
-            self.btn_music.change_image(constants.BTN_MUSIC_ON_IMG)
-        else:
-            self.btn_music.change_image(constants.BTN_MUSIC_OFF_IMG)
+    def music_stop(self):
+        pygame.mixer.music.stop()
+        self.btn_music.change_image(constants.BTN_MUSIC_OFF_IMG)
+
+    def music_start(self, value = 0):
+        pygame.mixer.music.play(value)
+        self.btn_music.change_image(constants.BTN_MUSIC_ON_IMG)
