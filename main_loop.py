@@ -39,18 +39,16 @@ class Main_loop:
 
 
     def init_sound(self):
-        self.sound_defeat = pygame.mixer.Sound(constants.DEFEAT_SOUND)
-        self.sound_defeat.set_volume(0.4)
-        self.sound_victory = pygame.mixer.Sound(constants.VICTORY_SOUND)
-        self.sound_victory.set_volume(0.4)
+        pygame.init()
+        pygame.mixer.init()
         if self.game_object.is_for_emperor:
-            self.sound = pygame.mixer.Sound(constants.SOUND_1).play(-1)
+            self.load_music(constants.SOUND_1)
         else:
-            self.sound = pygame.mixer.Sound(constants.SOUND_2).play(-1)
+            self.load_music(constants.SOUND_2)
         if settings.is_music:
-            self.turn_on_volume(self.sound)
+            self.music_start(-1)
         else:
-            self.turn_off_volume(self.sound)
+            self.music_stop()
 
 
     def disconnect(self):
@@ -82,14 +80,14 @@ class Main_loop:
             self.fpsClock.tick(self.FPS)
             if self.game_object.is_last_round:
                 self.supplement_game_over_group()
-                self.play_game_over_sound()
+                self.music_start_game_over()
                 self.game_object.is_pause = True
                 self.game_object.is_last_round = False
                 if not settings.is_multiplayer:
                     self.bot.is_send_card = False
                     self.bot.run = False
             if self.game_object.is_change_sound:
-                self.change_sound()
+                self.music_change()
                 self.game_object.is_change_sound = False
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
@@ -121,17 +119,16 @@ class Main_loop:
                 if not settings.is_multiplayer:
                     self.bot.run = False
                 self.disconnect()
-                self.sound.stop()
                 self.run = False
             elif self.btn_continue.isOver(pos):
                 self.game_object.is_pause = False
             elif self.btn_music.isOver(pos):
                 if settings.is_music:
                     settings.is_music = False
-                    self.turn_off_volume(self.sound)
+                    self.music_stop()
                 else:
                     settings.is_music = True
-                    self.turn_on_volume(self.sound)
+                    self.music_start()
         if event.type == pygame.MOUSEMOTION:
             self.guidance(self.menu_group, pos)
 
@@ -158,25 +155,31 @@ class Main_loop:
     def supplement_game_over_group(self):
         self.game_over_group.append(self.text_victory if self.game_object.my_score >= self.game_object.opp_score else self.text_defeat)
 
-    def play_game_over_sound(self):
+    def music_start_game_over(self):
         if settings.is_music:
-            self.sound.stop()
-            self.sound_victory.play() if self.game_object.my_score >= self.game_object.opp_score else self.sound_defeat.play()
+            self.load_music(constants.VICTORY_SOUND) if self.game_object.my_score >= self.game_object.opp_score else self.load_music(constants.DEFEAT_SOUND)
+            self.music_start()
 
-    def change_sound(self):
-        self.sound.stop()
-        if self.game_object.is_for_emperor:
-            self.sound = pygame.mixer.Sound(constants.SOUND_1).play(-1)
-        else:
-            self.sound = pygame.mixer.Sound(constants.SOUND_2).play(-1)
+    def music_stop(self):
+        pygame.mixer.music.stop()
+        self.btn_music.change_image(constants.BTN_MUSIC_OFF_IMG)
 
-    def turn_on_volume(self, sound):
-        sound.set_volume(1)
+    def music_start(self, value = 0):
+        pygame.mixer.music.play(value)
         self.btn_music.change_image(constants.BTN_MUSIC_ON_IMG)
 
-    def turn_off_volume(self, sound):
-        sound.set_volume(0)
-        self.btn_music.change_image(constants.BTN_MUSIC_OFF_IMG)
+    def music_change(self):
+        self.music_stop()
+        if self.game_object.is_for_emperor:
+            pygame.mixer.music.load(constants.SOUND_1)
+        else:
+            pygame.mixer.music.load(constants.SOUND_2)
+        if settings.is_music:
+            self.music_start()
+
+    def load_music(self, sound_way):
+        pygame.mixer.music.load(sound_way)
+
 
     def guidance(self, list, pos):
         for btn in list:

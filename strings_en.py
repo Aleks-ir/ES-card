@@ -32,7 +32,7 @@ main_menu = "Main menu"
 info_connection = "Room ip: "
 info_disconnection = "Your opponent is disconnected"
 victory = "Congratulations. You won :)"
-defeat = "It's a pity, but you lost :("
+defeat = "It's a pity, you lost :("
 
 array_dialogue_strings = (continue_game, main_menu, info_connection, info_disconnection, victory, defeat)
 

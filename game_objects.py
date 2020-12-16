@@ -19,11 +19,6 @@ class Cards(pygame.sprite.Sprite):
     def set_image(self, filename):
         self.image = pygame.image.load(filename)
 
-    def update(self, event):
-        keys = pygame.key.get_pressed()
-
-        if event.type == pygame.MOUSEMOTION and event.buttons[0]:
-            self.rect.center = event.pos
 
 
 class Background(pygame.sprite.Sprite):
@@ -118,11 +113,11 @@ class Game_objects:
             self.opp_point_centre.set_image(self.citizer_img)
 
     def init_box_group(self):
-        self.box_round = Image_button(False, self.load_box_img(), 20, 20, str(self.num_round), 30,
-                                      constants.GRAEY)
+        self.box_round = Image_button(False, self.load_box_img(), 20, 20, str(self.num_round), 23,
+                                      constants.GRAEY, constants.ALGERIAN)
         self.box_score = Image_button(False, self.load_box_img(), 700, 20,
-                                      '{}:{}'.format(self.my_score, self.opp_score), 30,
-                                      constants.GRAEY)
+                                      '{}:{}'.format(self.my_score, self.opp_score), 23,
+                                      constants.GRAEY, constants.ALGERIAN)
         self.box_group = (self.box_round, self.box_score)
 
     def load_box_img(self):

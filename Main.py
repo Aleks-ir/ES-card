@@ -1,4 +1,6 @@
+import os
 import queue
+import sys
 from threading import Thread
 
 import pygame
@@ -12,8 +14,8 @@ from main_menu import Menu
 from constants import SIZE
 
 
-
-
+if getattr(sys, 'frozen', False):
+    os.chdir(sys._MEIPASS)
 
 def server_connection(q):
     try:
@@ -49,6 +51,8 @@ if __name__ == '__main__':
     pygame.init()
     mainSurface = pygame.display.set_mode(SIZE)
     pygame.display.set_caption(constants.CAPTION)
+    life_image = pygame.image.load(constants.ICON_IMG).convert_alpha()
+    pygame.display.set_icon(life_image)
     run = True
     while run:
         run = Menu(mainSurface).show_menu()

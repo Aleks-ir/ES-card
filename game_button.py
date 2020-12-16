@@ -1,7 +1,10 @@
 import pygame
 
+import constants
+
+
 class Image_button:
-    def __init__(self, with_guidance, img_way, x, y, text='', font_size=40, color=(0,0,0), font_preference = None):
+    def __init__(self, with_guidance, img_way, x, y, text='', font_size=40, color=(0,0,0), font_preference = constants.ARIAL):
         self.with_guidance = with_guidance
         self.image = pygame.image.load(img_way)
         size = self.image.get_size()
@@ -16,17 +19,20 @@ class Image_button:
 
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y, self.width, self.height))
-
         if self.text != '':
             font = self.make_font(self.font_preference, self.font_size)
             text = font.render(self.text, 1, self.color)
             surface.blit(text, (self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
 
     def make_font(fonts, font_preferences, size):
-        available = pygame.font.get_fonts()
-        if font_preferences in available:
-            return pygame.font.SysFont(font_preferences, size)
-        return pygame.font.Font(None, size)
+        try:
+            return pygame.font.Font(font_preferences, size)
+        except:
+            return pygame.font.SysFont("", size)
+        #available = pygame.font.get_fonts()
+        #if font_preferences in available:
+        #    return pygame.font.SysFont(font_preferences, size)
+        #return pygame.font.Font(constants.ARIAL, size)
 
     def change_image(self, img_way):
         self.image = pygame.image.load(img_way)
